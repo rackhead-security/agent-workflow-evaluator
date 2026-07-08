@@ -1,0 +1,13 @@
+name: demo-support-agent
+data_sources:
+  - name: support_tickets
+    trust: mixed
+tools:
+  - name: search_tickets
+    mode: read
+  - name: send_email
+    mode: external_write
+    requires_approval: true
+memory:
+  enabled: true
+  review_required: true
