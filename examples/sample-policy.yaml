@@ -1,0 +1,7 @@
+rules:
+  - id: external_write_requires_approval
+    severity: high
+  - id: private_data_must_not_leave_trusted_boundary
+    severity: high
+  - id: log_all_tool_calls
+    severity: medium
