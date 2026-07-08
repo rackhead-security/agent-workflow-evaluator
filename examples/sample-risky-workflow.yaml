@@ -1,0 +1,51 @@
+name: demo-risky-support-agent
+version: 0.1
+owners:
+  - rackhead-security-demo
+risk_profile:
+  deployment_stage: internal
+  max_autonomy: approved_actions
+data_sources:
+  - name: support_tickets
+    type: chat
+    trust: mixed
+    contains_sensitive_data: true
+    access_control: user_scoped
+  - name: public_docs
+    type: web
+    trust: untrusted
+    contains_sensitive_data: false
+    access_control: none
+tools:
+  - name: search_tickets
+    mode: read
+    identity: service_account
+    requires_approval: false
+    allowed_domains: []
+    allowed_paths: []
+    logs_arguments: true
+    logs_results: true
+  - name: send_customer_email
+    mode: external_write
+    identity: user_delegated
+    requires_approval: false
+    allowed_domains:
+      - example.invalid
+    allowed_paths: []
+    logs_arguments: true
+    logs_results: false
+memory:
+  enabled: true
+  writes_allowed: true
+  review_required: false
+  retention: indefinite
+outputs:
+  - name: customer_email
+    type: email
+    external: true
+approvals: []
+monitoring:
+  log_tool_calls: true
+  log_retrieved_sources: false
+  alert_on_external_write: false
+  alert_on_policy_block: true
