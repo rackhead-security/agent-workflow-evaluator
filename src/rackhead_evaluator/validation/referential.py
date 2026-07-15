@@ -124,9 +124,7 @@ def _duplicate_issues(workflow: WorkflowDocument) -> list[ValidationIssue]:
         ("approvals", (item.id for item in workflow.approvals)),
     ]
     for name, identifiers in collections:
-        duplicates = sorted(
-            item for item, count in Counter(identifiers).items() if count > 1
-        )
+        duplicates = sorted(item for item, count in Counter(identifiers).items() if count > 1)
         if duplicates:
             issues.append(
                 _ref_issue(
@@ -145,9 +143,7 @@ def _duplicate_issues(workflow: WorkflowDocument) -> list[ValidationIssue]:
     ]
     if workflow.memory is not None:
         node_identifiers.append(workflow.memory.id)
-    collisions = sorted(
-        item for item, count in Counter(node_identifiers).items() if count > 1
-    )
+    collisions = sorted(item for item, count in Counter(node_identifiers).items() if count > 1)
     if collisions:
         issues.append(
             _ref_issue(

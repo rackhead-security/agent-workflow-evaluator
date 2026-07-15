@@ -25,7 +25,9 @@ Identifier = Annotated[
         pattern=r"^[a-z0-9][a-z0-9_-]*$",
     ),
 ]
-NonEmptyString = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
+NonEmptyString = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1)
+]
 RuleId = Literal[
     "RH-AWE-001",
     "RH-AWE-002",
