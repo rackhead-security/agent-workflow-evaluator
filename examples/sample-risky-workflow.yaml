@@ -1,51 +1,75 @@
-name: demo-risky-support-agent
-version: 0.1
-owners:
-  - rackhead-security-demo
+schema_version: "0.1"
+workflow:
+  id: demo-risky-support-agent
+  name: Demo Risky Support Agent
+  version: "0.1.0"
+  description: Structurally valid synthetic workflow for future rule evaluation
+  owners:
+    - rackhead-security-demo
 risk_profile:
-  deployment_stage: internal
-  max_autonomy: approved_actions
+  deployment_stage: production
+  max_autonomy: autonomous_actions
 data_sources:
-  - name: support_tickets
-    type: chat
-    trust: mixed
-    contains_sensitive_data: true
-    access_control: user_scoped
-  - name: public_docs
+  - id: public_docs
+    name: Public documents
     type: web
     trust: untrusted
-    contains_sensitive_data: false
+    sensitivity: public
     access_control: none
+  - id: support_tickets
+    name: Support tickets
+    type: chat
+    trust: mixed
+    sensitivity: restricted
+    access_control: user_scoped
 tools:
-  - name: search_tickets
+  - id: search_tickets
+    name: Search tickets
     mode: read
     identity: service_account
-    requires_approval: false
     allowed_domains: []
     allowed_paths: []
     logs_arguments: true
-    logs_results: true
-  - name: send_customer_email
+    logs_results: false
+  - id: send_customer_email
+    name: Send customer email
     mode: external_write
-    identity: user_delegated
-    requires_approval: false
-    allowed_domains:
-      - example.invalid
+    identity: unknown
+    allowed_domains: []
     allowed_paths: []
-    logs_arguments: true
+    logs_arguments: false
     logs_results: false
 memory:
+  id: agent_memory
   enabled: true
   writes_allowed: true
   review_required: false
-  retention: indefinite
+  retention:
+    mode: indefinite
+  sensitivity: restricted
 outputs:
-  - name: customer_email
+  - id: customer_email
+    name: Customer email
     type: email
-    external: true
+    boundary: external
+    sensitivity_allowed: public
+flows:
+  - id: ticket_to_customer_email
+    from: support_tickets
+    through:
+      - search_tickets
+      - send_customer_email
+    to: customer_email
+    carries:
+      - restricted
+    transforms:
+      - summarize
 approvals: []
 monitoring:
-  log_tool_calls: true
+  log_tool_calls: false
+  log_tool_arguments: false
+  log_tool_results: false
   log_retrieved_sources: false
   alert_on_external_write: false
-  alert_on_policy_block: true
+  alert_on_policy_block: false
+exceptions: []

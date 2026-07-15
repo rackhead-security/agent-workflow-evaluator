@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rackhead-agent-workflow-evaluator"
+version = "0.1.0"
+description = "Deterministic validation foundation for declared AI-agent workflows"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "RackHead Security" }]
+dependencies = [
+  "pydantic>=2.12,<3",
+  "PyYAML>=6,<7",
+  "typer>=0.16,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.17,<2",
+  "pytest>=8,<9",
+  "ruff>=0.12,<1",
+  "types-PyYAML>=6.0.12",
+]
+
+[project.scripts]
+rackhead-eval = "rackhead_evaluator.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "RUF"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["rackhead_evaluator"]

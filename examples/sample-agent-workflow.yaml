@@ -1,13 +1,78 @@
-name: demo-support-agent
+schema_version: "0.1"
+workflow:
+  id: demo-support-agent
+  name: Demo Support Agent
+  version: "0.1.0"
+  description: Synthetic validation-only example
+  owners:
+    - rackhead-security-demo
+risk_profile:
+  deployment_stage: internal
+  max_autonomy: approved_actions
 data_sources:
-  - name: support_tickets
+  - id: support_tickets
+    name: Support tickets
+    type: chat
     trust: mixed
+    sensitivity: confidential
+    access_control: user_scoped
 tools:
-  - name: search_tickets
+  - id: search_tickets
+    name: Search tickets
     mode: read
-  - name: send_email
+    identity: service_account
+    allowed_domains: []
+    allowed_paths: []
+    logs_arguments: true
+    logs_results: false
+  - id: send_customer_email
+    name: Send customer email
     mode: external_write
-    requires_approval: true
+    identity: user_delegated
+    allowed_domains:
+      - example.invalid
+    allowed_paths: []
+    logs_arguments: true
+    logs_results: false
 memory:
+  id: agent_memory
   enabled: true
+  writes_allowed: true
   review_required: true
+  retention:
+    mode: fixed_days
+    days: 30
+  sensitivity: confidential
+outputs:
+  - id: customer_email
+    name: Customer email
+    type: email
+    boundary: external
+    sensitivity_allowed: confidential
+flows:
+  - id: ticket_to_customer_email
+    from: support_tickets
+    through:
+      - search_tickets
+      - send_customer_email
+    to: customer_email
+    carries:
+      - confidential
+    transforms:
+      - summarize
+approvals:
+  - id: approve_external_email
+    actions:
+      - tool:send_customer_email
+      - flow:ticket_to_customer_email
+    approver_role: support_lead
+    required: true
+monitoring:
+  log_tool_calls: true
+  log_tool_arguments: true
+  log_tool_results: false
+  log_retrieved_sources: true
+  alert_on_external_write: true
+  alert_on_policy_block: true
+  retention_days: 90
+exceptions: []

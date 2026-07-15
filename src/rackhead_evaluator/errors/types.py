@@ -1,0 +1,60 @@
+"""Stable public validation error types."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import StrEnum
+from typing import Any, NoReturn
+
+
+class ValidationStage(StrEnum):
+    STRUCTURAL = "structural"
+    REFERENTIAL = "referential"
+    SEMANTIC = "semantic"
+    POLICY = "policy"
+    CONFIGURATION = "configuration"
+
+
+@dataclass(frozen=True, slots=True)
+class ValidationIssue:
+    code: str
+    stage: ValidationStage
+    message: str
+    path: str | None = None
+    value: Any | None = None
+    suggestion: str | None = None
+
+    def render(self) -> str:
+        parts = [f"{self.code} [{self.stage}] {self.message}"]
+        if self.path:
+            parts.append(f"path: {self.path}")
+        if self.value is not None:
+            rendered_value = _safe_value(self.value, stage=self.stage)
+            if rendered_value is not None:
+                parts.append(f"value: {rendered_value}")
+        if self.suggestion:
+            parts.append(f"suggestion: {self.suggestion}")
+        return "\n  ".join(parts)
+
+
+class ValidationFailure(Exception):
+    def __init__(self, issues: list[ValidationIssue]) -> None:
+        if not issues:
+            raise ValueError("ValidationFailure requires at least one issue")
+        self.issues = tuple(issues)
+        super().__init__("; ".join(issue.code for issue in issues))
+
+
+def fail(issue: ValidationIssue) -> NoReturn:
+    raise ValidationFailure([issue])
+
+
+def _safe_value(value: Any, *, stage: ValidationStage) -> str | None:
+    if stage in {ValidationStage.STRUCTURAL, ValidationStage.POLICY} and not isinstance(
+        value, (bool, int, float)
+    ):
+        return None
+    rendered = repr(value)
+    if len(rendered) > 200:
+        return f"{rendered[:197]}..."
+    return rendered
