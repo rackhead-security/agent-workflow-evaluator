@@ -25,9 +25,7 @@ Identifier = Annotated[
         pattern=r"^[a-z0-9][a-z0-9_-]*$",
     ),
 ]
-NonEmptyString = Annotated[
-    str, StringConstraints(strip_whitespace=True, min_length=1)
-]
+NonEmptyString = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 RuleId = Literal[
     "RH-AWE-001",
     "RH-AWE-002",
@@ -207,9 +205,7 @@ class MemoryRetention(StrictModel):
     def validate_days(self) -> MemoryRetention:
         if self.mode is RetentionMode.FIXED_DAYS:
             if self.days is None or self.days <= 0:
-                raise ValueError(
-                    "days must be a positive integer when mode is fixed_days"
-                )
+                raise ValueError("days must be a positive integer when mode is fixed_days")
         elif self.days is not None:
             raise ValueError("days is allowed only when mode is fixed_days")
         return self
