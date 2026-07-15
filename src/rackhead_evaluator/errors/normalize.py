@@ -13,18 +13,12 @@ def normalize_pydantic_errors(
     subject: str,
 ) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
-    for item in error.errors(
-        include_url=False, include_context=False, include_input=True
-    ):
+    for item in error.errors(include_url=False, include_context=False, include_input=True):
         path = format_path(item["loc"])
         error_type = str(item["type"])
         raw_value = item.get("input")
         message = str(item["msg"])
-        stage = (
-            ValidationStage.STRUCTURAL
-            if subject == "workflow"
-            else ValidationStage.POLICY
-        )
+        stage = ValidationStage.STRUCTURAL if subject == "workflow" else ValidationStage.POLICY
 
         if error_type == "extra_forbidden" and path.endswith("requires_approval"):
             issues.append(
