@@ -1,7 +1,11 @@
-rules:
-  - id: external_write_requires_approval
-    severity: high
-  - id: private_data_must_not_leave_trusted_boundary
-    severity: high
-  - id: log_all_tool_calls
-    severity: medium
+policy_version: "0.1"
+blocking_severity: high
+enabled_rules:
+  - RH-AWE-001
+  - RH-AWE-002
+  - RH-AWE-003
+  - RH-AWE-004
+  - RH-AWE-005
+  - RH-AWE-006
+  - RH-AWE-007
+  - RH-AWE-008

@@ -1,50 +1,80 @@
 # Agent Workflow Evaluator
 
-Early prototype/design skeleton for evaluating risky patterns in agent workflows.
+Agent Workflow Evaluator is an early-stage, deterministic, local-first tool for reviewing the **declared** security properties of AI-agent workflows.
 
-## Problem statement
+The current implementation is **Slice 1 only**: package foundation, safe YAML parsing, typed schema models, normalized validation errors, and fail-closed validation. It does not yet evaluate `RH-AWE-001` through `RH-AWE-008` or generate security reports.
 
-Teams need a small, understandable way to describe an agent workflow and flag risky patterns before deployment. This repo starts with schema ideas, policy examples, and design notes before code.
+The approved implementation contract is [`docs/v0.1-spec.md`](docs/v0.1-spec.md). The older [`docs/schema.md`](docs/schema.md) is deprecated historical context.
 
-## Why it matters
+## Current capabilities
 
-AI agents combine model reasoning with permissions, memory, retrieval, tools, and external data. That makes failures harder to reason about than ordinary prompt quality issues. Builders need practical, reviewable artifacts before deploying workflows that can read, write, call APIs, or act on behalf of users.
+- Parse bounded UTF-8 YAML with a strict loader derived from PyYAML `SafeLoader`.
+- Reject YAML aliases, duplicate mapping keys, and inputs larger than 1 MiB.
+- Reject unknown fields and unsupported schema or policy versions.
+- Validate schema `0.1` with typed Pydantic models.
+- Validate explicit references between sources, tools, memory, outputs, flows, approvals, and exceptions.
+- Reject duplicated or ambiguous flow-addressable IDs.
+- Reject repeated nodes in a flow.
+- Enforce top-level `approvals` as the only approval declaration surface.
+- Reject flow declarations that understate source or memory sensitivity.
+- Return normalized validation errors and fail-closed exit codes.
+- Run without network access, credentials, telemetry, or an LLM API.
 
-## Current status
+## Not implemented yet
 
-Early-stage, defensive, work in progress. This repository is not a production security guarantee.
+- Security-rule evaluation (`RH-AWE-001` through `RH-AWE-008`).
+- Finding severities, blocking decisions, or accepted-exception processing.
+- Markdown or JSON security reports.
+- Runtime inspection, prompt execution, tool execution, or dynamic red teaming.
+- Proof that a workflow is secure.
 
-## What is included
+A successful validation result means only that the declaration is structurally, referentially, and semantically consistent with schema `0.1`.
 
-- Problem statement
-- Design sketch
-- Risk taxonomy
-- Sample workflow YAML
-- Sample policy YAML
-- src and tests placeholders
+## Installation
 
-## Quick start
+Python 3.12 or newer is required.
 
-1. Read the README and responsible security note.
-2. Start with the checklist or template closest to your system.
-3. Adapt it to your own data, tools, permissions, and deployment context.
-4. Open issues for gaps, unclear language, or safe examples you want added.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+```
 
-## Examples
+## Validation-only quick start
 
-Examples are synthetic and intentionally safe. They are designed to teach security thinking without enabling unauthorized activity against real systems.
+```bash
+rackhead-eval examples/sample-agent-workflow.yaml
+```
 
-## Roadmap
+Expected output:
 
-- Define YAML schema
-- Add parser MVP
-- Add static checks for tool risk
-- Add report output
-- Add safe sample workflows
+```text
+valid: demo-support-agent (schema 0.1)
+```
 
-## Contributing
+Validate an optional policy file as well:
 
-Contributions are welcome if they are defensive, sourced where appropriate, and safe to publish. See CONTRIBUTING.md.
+```bash
+rackhead-eval examples/sample-agent-workflow.yaml \
+  --policy examples/sample-policy.yaml
+```
+
+Invalid workflow or policy input returns exit code `2`. Unexpected internal evaluator failure returns exit code `3`. Neither path may be reported as success.
+
+## Local checks
+
+```bash
+ruff check .
+ruff format --check .
+mypy
+pytest
+```
+
+The test suite uses synthetic data and reserved invalid domains. It requires no secrets or network access.
+
+## Repository status
+
+This repository is defensive, early-stage, and not a production security guarantee. Contributions must preserve deterministic behavior, fail-closed validation, safe examples, and the approved trust boundaries in `docs/v0.1-spec.md`.
 
 ## Responsible security note
 
