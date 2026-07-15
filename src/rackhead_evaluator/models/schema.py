@@ -50,11 +50,13 @@ DEFAULT_RULE_IDS: tuple[RuleId, ...] = (
 
 
 def default_rule_ids() -> list[RuleId]:
+    """Return a new list so model instances do not share mutable state."""
+
     return list(DEFAULT_RULE_IDS)
 
 
 class StrictModel(BaseModel):
-    """Base model that rejects silent schema drift."""
+    """Base model that rejects unknown fields and silent coercion drift."""
 
     model_config = ConfigDict(
         extra="forbid",
@@ -203,7 +205,9 @@ class MemoryRetention(StrictModel):
     def validate_days(self) -> MemoryRetention:
         if self.mode is RetentionMode.FIXED_DAYS:
             if self.days is None or self.days <= 0:
-                raise ValueError("days must be a positive integer when mode is fixed_days")
+                raise ValueError(
+                    "days must be a positive integer when mode is fixed_days"
+                )
         elif self.days is not None:
             raise ValueError("days is allowed only when mode is fixed_days")
         return self

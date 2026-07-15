@@ -17,7 +17,7 @@ MAX_INPUT_BYTES = 1_048_576
 
 
 class StrictSafeLoader(yaml.SafeLoader):
-    """SafeLoader that rejects aliases and ambiguous duplicate mapping keys."""
+    """SafeLoader that rejects aliases and duplicate mapping keys."""
 
     def compose_node(self, parent: Any, index: Any) -> Any:
         if self.check_event(AliasEvent):  # type: ignore[no-untyped-call]
@@ -66,7 +66,7 @@ StrictSafeLoader.add_constructor(
 
 
 def read_yaml_mapping(path: Path, *, subject: str) -> dict[str, Any]:
-    """Read bounded UTF-8 YAML and require a unique-key mapping root."""
+    """Read bounded UTF-8 YAML and require a mapping root."""
 
     try:
         with path.open("rb") as stream:

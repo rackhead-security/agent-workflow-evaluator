@@ -1,4 +1,4 @@
-"""Stable public validation error contract."""
+"""Stable public validation error types."""
 
 from __future__ import annotations
 
@@ -8,8 +8,6 @@ from typing import Any, NoReturn
 
 
 class ValidationStage(StrEnum):
-    """Validation stage associated with a controlled issue."""
-
     STRUCTURAL = "structural"
     REFERENTIAL = "referential"
     SEMANTIC = "semantic"
@@ -19,8 +17,6 @@ class ValidationStage(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class ValidationIssue:
-    """A normalized, safe, and deterministic validation issue."""
-
     code: str
     stage: ValidationStage
     message: str
@@ -29,8 +25,6 @@ class ValidationIssue:
     suggestion: str | None = None
 
     def render(self) -> str:
-        """Render a human-readable representation without process state."""
-
         parts = [f"{self.code} [{self.stage}] {self.message}"]
         if self.path:
             parts.append(f"path: {self.path}")
@@ -44,8 +38,6 @@ class ValidationIssue:
 
 
 class ValidationFailure(Exception):
-    """Controlled validation failure containing one or more normalized issues."""
-
     def __init__(self, issues: list[ValidationIssue]) -> None:
         if not issues:
             raise ValueError("ValidationFailure requires at least one issue")
@@ -54,14 +46,10 @@ class ValidationFailure(Exception):
 
 
 def fail(issue: ValidationIssue) -> NoReturn:
-    """Raise a controlled failure for one issue."""
-
     raise ValidationFailure([issue])
 
 
 def _safe_value(value: Any, *, stage: ValidationStage) -> str | None:
-    """Render bounded values without echoing arbitrary structural input."""
-
     if stage in {ValidationStage.STRUCTURAL, ValidationStage.POLICY} and not isinstance(
         value, (bool, int, float)
     ):

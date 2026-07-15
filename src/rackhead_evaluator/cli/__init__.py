@@ -33,7 +33,7 @@ def validate(
         ),
     ] = None,
 ) -> None:
-    """Validate one workflow without running security rules or generating reports."""
+    """Validate one workflow without running security rules or reports."""
 
     try:
         workflow = load_workflow(workflow_path)
@@ -53,5 +53,4 @@ def validate(
     typer.echo(f"valid: {workflow.workflow.id} (schema {workflow.schema_version})")
 
 
-if __name__ == "__main__":
-    app()
+__all__ = ["app", "load_policy", "load_workflow", "validate"]
