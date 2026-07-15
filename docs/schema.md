@@ -1,6 +1,16 @@
 # Agent Workflow Evaluator YAML Schema Draft
 
-Status: early MVP design. This schema is intentionally small and reviewable. It is not a production security guarantee.
+**Status:** DEPRECATED  
+**Superseded by:** [`docs/v0.1-spec.md`](./v0.1-spec.md)  
+**Deprecated on:** 2026-07-15
+
+This file records the early MVP schema sketch. It is retained for historical context only and must not be used as the implementation contract for `v0.1`.
+
+The approved workflow schema, rule semantics, validation behavior, security assumptions, test requirements, and Definition of Done are defined in [`docs/v0.1-spec.md`](./v0.1-spec.md). Where this historical draft differs from the approved specification, `docs/v0.1-spec.md` takes precedence.
+
+## Historical early draft
+
+Status at creation: early MVP design. This schema was intentionally small and reviewable. It was not a production security guarantee.
 
 ## Goals
 
