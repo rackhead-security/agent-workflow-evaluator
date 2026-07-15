@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
@@ -18,8 +18,6 @@ from rackhead_evaluator.parser import read_yaml_mapping
 
 from .referential import referential_issues
 from .semantic import semantic_issues
-
-ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 def load_workflow(path: Path) -> WorkflowDocument:
@@ -44,7 +42,7 @@ def validate_policy_mapping(raw: dict[str, Any]) -> Policy:
     return _validate_model(Policy, raw, subject="policy")
 
 
-def _validate_model(
+def _validate_model[ModelT: BaseModel](
     model_type: type[ModelT],
     raw: dict[str, Any],
     *,
@@ -54,9 +52,7 @@ def _validate_model(
     try:
         return model_type.model_validate(raw)
     except ValidationError as exc:
-        raise ValidationFailure(
-            normalize_pydantic_errors(exc, subject=subject)
-        ) from None
+        raise ValidationFailure(normalize_pydantic_errors(exc, subject=subject)) from None
 
 
 def _validate_version_precondition(raw: dict[str, Any], *, subject: str) -> None:
